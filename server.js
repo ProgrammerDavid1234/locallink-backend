@@ -6,6 +6,8 @@ const cors = require('cors');
 // Routes
 const serviceProviderRoutes = require('./routes/serviceProviderRoutes');
 const authRoutes = require('./routes/authRoute');
+const profileRoutes = require('./routes/profileRoutes');
+
 
 // Load environment variables
 dotenv.config({ path: './.env' });
@@ -40,6 +42,9 @@ app.get('/api/test', (req, res) => {
 // Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/service-providers', serviceProviderRoutes);
+app.use('/api/v1/profile', profileRoutes);
+
+
 
 // Handle unhandled routes
 app.use((req, res) => {
