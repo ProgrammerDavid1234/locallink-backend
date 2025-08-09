@@ -7,7 +7,7 @@ const cors = require('cors');
 const serviceProviderRoutes = require('./routes/serviceProviderRoutes');
 const authRoutes = require('./routes/authRoute');
 const profileRoutes = require('./routes/profileRoutes');
-
+const path = require('path');
 
 // Load environment variables
 dotenv.config({ path: './.env' });
@@ -43,6 +43,7 @@ app.get('/api/test', (req, res) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/service-providers', serviceProviderRoutes);
 app.use('/api/v1/profile', profileRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 
