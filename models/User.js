@@ -1,63 +1,89 @@
+// models/User.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-const UserSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true
-  },
-  password: {
-    type: String,
-    required: true,
-    minlength: 8,
-    select: false
-  },
-  role: {
-    type: String,
-    enum: ['user', 'service_provider', 'admin'],
-    default: 'user'
-  },
-  location: {
-    type: {
+const userSchema = new mongoose.Schema(
+  {
+    name: {
       type: String,
-      enum: ['Point'],
-      required: true,
-      default: 'Point'
+      required: [true, 'Please provide a name'],
+      trim: true
     },
-    coordinates: {
-      type: [Number],
-      required: true
-    }
+    username: {
+      type: String,
+      trim: true,
+      unique: true,
+      sparse: true // allows null usernames
+    },
+    email: {
+      type: String,
+      required: [true, 'Please provide an email'],
+      unique: true,
+      lowercase: true,
+      trim: true,
+      match: [
+        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+        'Please provide a valid email'
+      ]
+    },
+    password: {
+      type: String,
+      required: [true, 'Please provide a password'],
+      minlength: 8,
+      select: false
+    },
+    phone: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+    address: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+    avatar: {
+      type: String,
+      default: 'https://randomuser.me/api/portraits/men/1.jpg'
+    },
+    role: {
+      type: String,
+      enum: ['user', 'service_provider', 'admin'],
+      default: 'user'
+    },
+    isVerified: {
+      type: Boolean,
+      default: false
+    },
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point'
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+        default: [0, 0]
+      }
+    },
+    services: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Service'
+      }
+    ]
   },
-  services: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Service'
-  }],
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+  { timestamps: true }
+);
 
-// Create geospatial index
-UserSchema.index({ location: '2dsphere' });
+// Create a geospatial index for service providers
+userSchema.index({ location: '2dsphere' });
 
 // Hash password before saving
-UserSchema.pre('save', async function(next) {
-  // Only hash if password was modified
+userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
-  
+
   try {
-    // Hash password with cost factor of 12
     this.password = await bcrypt.hash(this.password, 12);
     next();
   } catch (err) {
@@ -66,9 +92,14 @@ UserSchema.pre('save', async function(next) {
 });
 
 // Instance method to compare passwords
-UserSchema.methods.correctPassword = async function(candidatePassword) {
+userSchema.methods.correctPassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-module.exports = mongoose.model('User', UserSchema);
+// Update `updatedAt` before saving
+userSchema.pre('save', function (next) {
+  this.updatedAt = Date.now();
+  next();
+});
 
+module.exports = mongoose.model('User', userSchema);
