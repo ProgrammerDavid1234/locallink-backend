@@ -32,6 +32,9 @@ router.patch('/jobs/my-posted/:jobId/cancel', protect, serviceProviderController
 router.patch('/jobs/:jobId/accept', protect, serviceProviderController.acceptJob);
 router.patch('/jobs/:jobId/complete', protect, serviceProviderController.completeJob);
 router.patch('/jobs/:jobId/cancel', protect, serviceProviderController.cancelJob);
+router.get('/jobs/pending', protect, serviceProviderController.getPendingJobs);
+// router.get('/jobs/active', protect, serviceProviderController.getActiveJobs);
+// router.get('/jobs/completed', protect, serviceProviderController.getCompletedJobs);
 
 // 📱 Availability
 router.patch('/availability', protect, serviceProviderController.updateAvailability);
