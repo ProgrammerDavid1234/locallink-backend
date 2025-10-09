@@ -87,6 +87,25 @@ const serviceProviderSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    // ✅ NEW: Credits system for posting jobs
+    credits: {
+        available: {
+            type: Number,
+            default: 200
+        },
+        total: {
+            type: Number,
+            default: 200
+        },
+        spent: {
+            type: Number,
+            default: 0
+        },
+        lastUpdated: {
+            type: Date,
+            default: Date.now
+        }
+    },
     createdAt: {
         type: Date,
         default: Date.now

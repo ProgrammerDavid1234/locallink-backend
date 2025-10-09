@@ -21,9 +21,12 @@ router.get('/dashboard/stats', protect, serviceProviderController.getDashboard);
 // 💰 Earnings
 router.get('/earnings/summary', protect, serviceProviderController.getEarnings);
 
-// 📝 Jobs/Requests
-router.get('/jobs/pending', protect, serviceProviderController.getPendingJobs);
-router.get('/jobs/:jobId', protect, serviceProviderController.getJobDetails);
+// ✨ NEW: Service Provider's Own Job Posting (PostJob screen)
+router.post('/jobs/post', protect, upload.single('logo'), serviceProviderController.postProviderJob);
+router.get('/jobs/my-posted', protect, serviceProviderController.getProviderPostedJobs);
+router.get('/jobs/my-posted/:jobId', protect, serviceProviderController.getProviderJobDetails);
+router.patch('/jobs/my-posted/:jobId', protect, upload.single('logo'), serviceProviderController.updateProviderJob);
+router.patch('/jobs/my-posted/:jobId/cancel', protect, serviceProviderController.cancelProviderJob);
 
 // ✅ Job Actions
 router.patch('/jobs/:jobId/accept', protect, serviceProviderController.acceptJob);
