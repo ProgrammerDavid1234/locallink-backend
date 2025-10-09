@@ -1,3 +1,4 @@
+// models/ServiceProvider.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
@@ -13,7 +14,7 @@ const serviceProviderSchema = new mongoose.Schema({
         lowercase: true
     },
     image: {
-        type: String, // store URL or file path
+        type: String,
         default: null
     },
     password: {
@@ -32,13 +33,59 @@ const serviceProviderSchema = new mongoose.Schema({
         type: String
     },
     availableDates: {
-        type: [Date] // array of available dates
+        type: [Date]
     },
     availableTimes: {
-        type: [String] // e.g., ["9:00 AM - 12:00 PM", "1:00 PM - 4:00 PM"]
+        type: [String]
     },
     location: {
         type: String
+    },
+    // ✅ NEW: Availability status
+    isOnline: {
+        type: Boolean,
+        default: true
+    },
+    lastActive: {
+        type: Date,
+        default: Date.now
+    },
+    // ✅ NEW: Earnings tracking
+    earnings: {
+        today: {
+            type: Number,
+            default: 0
+        },
+        total: {
+            type: Number,
+            default: 0
+        },
+        lastUpdated: {
+            type: Date,
+            default: Date.now
+        }
+    },
+    // ✅ NEW: Rating and reviews
+    rating: {
+        average: {
+            type: Number,
+            default: 0,
+            min: 0,
+            max: 5
+        },
+        totalReviews: {
+            type: Number,
+            default: 0
+        }
+    },
+    // ✅ NEW: Stats
+    completedJobs: {
+        type: Number,
+        default: 0
+    },
+    cancelledJobs: {
+        type: Number,
+        default: 0
     },
     createdAt: {
         type: Date,
@@ -56,6 +103,20 @@ serviceProviderSchema.pre('save', async function (next) {
 // Password check method
 serviceProviderSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
     return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+// Method to update daily earnings
+serviceProviderSchema.methods.updateTodayEarnings = async function (amount) {
+    this.earnings.today += amount;
+    this.earnings.total += amount;
+    this.earnings.lastUpdated = Date.now();
+    return await this.save();
+};
+
+// Method to reset daily earnings (call at midnight)
+serviceProviderSchema.methods.resetDailyEarnings = async function () {
+    this.earnings.today = 0;
+    return await this.save();
 };
 
 const ServiceProvider = mongoose.model('ServiceProvider', serviceProviderSchema);
