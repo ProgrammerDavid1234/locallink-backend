@@ -36,4 +36,7 @@ router.patch('/jobs/:jobId/cancel', protect, serviceProviderController.cancelJob
 // 📱 Availability
 router.patch('/availability', protect, serviceProviderController.updateAvailability);
 
+// 💳 Credits
+router.get('/credits', protect, serviceProviderController.getCredits);
+
 module.exports = router;
