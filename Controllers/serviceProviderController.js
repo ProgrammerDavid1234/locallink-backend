@@ -651,6 +651,37 @@ exports.cancelProviderJob = async (req, res) => {
     }
 };
 
+// 📌 Get Credits
+exports.getCredits = async (req, res) => {
+    try {
+        const serviceProviderId = req.userId;
+
+        const serviceProvider = await ServiceProvider.findById(serviceProviderId).select('credits');
+
+        if (!serviceProvider) {
+            return res.status(404).json({
+                status: 'fail',
+                message: 'Service provider not found'
+            });
+        }
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                available: serviceProvider.credits.available,
+                total: serviceProvider.credits.total,
+                spent: serviceProvider.credits.spent,
+                lastUpdated: serviceProvider.credits.lastUpdated
+            }
+        });
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: err.message
+        });
+    }
+};
+
 // 📌 Get All Service Providers
 exports.getAllServiceProviders = async (req, res) => {
     try {
